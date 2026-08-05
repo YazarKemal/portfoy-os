@@ -1,0 +1,33 @@
+# Secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Node
+node_modules/
+.next/
+out/
+coverage/
+.pnpm-store/
+
+# Python
+.venv/
+__pycache__/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.py[cod]
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Runtime
+*.log
+.tmp/
+tmp/
+*.tsbuildinfo

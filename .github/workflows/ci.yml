@@ -1,0 +1,108 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  backend:
+    name: Backend — test / lint / typecheck
+    runs-on: ubuntu-24.04
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: portfoy_os
+          POSTGRES_USER: portfoy
+          POSTGRES_PASSWORD: change-me-locally
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U portfoy -d portfoy_os"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Install Python
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: services/api/.python-version
+
+      - name: Sync dependencies
+        working-directory: services/api
+        run: uv sync --all-groups
+
+      - name: Ruff lint
+        working-directory: services/api
+        run: uv run ruff check .
+
+      - name: Apply migrations
+        working-directory: services/api
+        run: uv run alembic upgrade head
+        env:
+          DATABASE_URL: postgresql+psycopg://portfoy:change-me-locally@localhost:5432/portfoy_os
+
+      - name: Verify migration head
+        working-directory: services/api
+        run: uv run alembic current
+        env:
+          DATABASE_URL: postgresql+psycopg://portfoy:change-me-locally@localhost:5432/portfoy_os
+
+      - name: Verify migration downgrade
+        working-directory: services/api
+        run: uv run alembic downgrade base
+        env:
+          DATABASE_URL: postgresql+psycopg://portfoy:change-me-locally@localhost:5432/portfoy_os
+
+      - name: Reapply migrations
+        working-directory: services/api
+        run: uv run alembic upgrade head
+        env:
+          DATABASE_URL: postgresql+psycopg://portfoy:change-me-locally@localhost:5432/portfoy_os
+
+      - name: Mypy typecheck
+        working-directory: services/api
+        run: uv run mypy app
+
+      - name: Pytest
+        working-directory: services/api
+        run: uv run pytest
+        env:
+          DATABASE_URL: postgresql+psycopg://portfoy:change-me-locally@localhost:5432/portfoy_os
+
+  frontend:
+    name: Frontend — lint / typecheck
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Install Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Build
+        run: pnpm build
