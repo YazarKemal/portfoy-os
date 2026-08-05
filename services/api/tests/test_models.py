@@ -4,6 +4,7 @@ import uuid
 from datetime import UTC, datetime
 from decimal import Decimal
 
+from app.database import async_session_factory
 from app.enums import DataLatency, DataSourceStatusState, TransactionType
 from app.models import (
     Account,
@@ -18,11 +19,21 @@ from app.models import (
 
 
 class TestUserModel:
-    def test_create_minimal(self) -> None:
-        user = User(email="test@example.com", display_name="Test User")
-        assert user.email == "test@example.com"
-        assert user.display_name == "Test User"
-        assert isinstance(user.id, uuid.UUID)
+    async def test_create_minimal(self) -> None:
+        user = User(
+            email="test@example.com",
+            display_name="Test User",
+        )
+
+        async with async_session_factory() as session:
+            session.add(user)
+            await session.flush()
+
+            assert user.email == "test@example.com"
+            assert user.display_name == "Test User"
+            assert isinstance(user.id, uuid.UUID)
+
+            await session.rollback()
 
     def test_email_unique(self) -> None:
         assert hasattr(User, "email")
@@ -128,7 +139,15 @@ class TestPortfolioSnapshotModel:
 
 
 class TestDataSourceStatusModel:
-    def test_create_default(self) -> None:
+    async def test_create_default(self) -> None:
         status = DataSourceStatus(provider="tefas")
-        assert status.provider == "tefas"
-        assert status.status == DataSourceStatusState.UNKNOWN
+
+        async with async_session_factory() as session:
+            session.add(status)
+            await session.flush()
+
+            assert status.provider == "tefas"
+            assert status.status == DataSourceStatusState.UNKNOWN
+            assert isinstance(status.id, uuid.UUID)
+
+            await session.rollback()
