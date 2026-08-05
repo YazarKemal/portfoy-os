@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Portföy OS",
-  description: "Kişisel portföy takip ve karar destek sistemi",
+  title: "Portföy OS — Portföy Takip ve Karar Destek",
+  description:
+    "Kişisel portföy takip ve açıklanabilir karar destek sistemi. Yatırımlarınızı izleyin, varlık dağılımınızı görün, işlemlerinizi kaydedin.",
 };
 
 export default function RootLayout({
