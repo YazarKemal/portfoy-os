@@ -13,7 +13,6 @@ from app.models import (  # noqa: F401 — ensure models are registered
     Account,
     Asset,
     AssetPrice,
-    CashFlow,
     DataSourceStatus,
     PortfolioSnapshot,
     Transaction,

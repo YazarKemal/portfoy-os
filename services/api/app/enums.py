@@ -28,3 +28,15 @@ class DataLatency(enum.StrEnum):
     DELAYED = "DELAYED"
     END_OF_DAY = "END_OF_DAY"
     MANUAL = "MANUAL"
+
+
+class TransactionStatus(enum.StrEnum):
+    DRAFT = "DRAFT"
+    POSTED = "POSTED"
+    VOIDED = "VOIDED"
+
+
+class TransactionSource(enum.StrEnum):
+    MANUAL = "MANUAL"
+    IMPORT = "IMPORT"
+    AI = "AI"
