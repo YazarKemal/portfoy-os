@@ -4,15 +4,39 @@ import uuid
 from datetime import UTC, datetime
 
 import pytest
+import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.database import async_session_factory
+from app.database import async_session_factory, engine
 from app.main import app
+
+_TRUNCATE_TABLES = (
+    "TRUNCATE TABLE "
+    "asset_prices, "
+    "transactions, "
+    "portfolio_snapshots, "
+    "accounts, "
+    "assets, "
+    "data_source_status, "
+    "users "
+    "RESTART IDENTITY CASCADE"
+)
+
+
+@pytest_asyncio.fixture
+async def reset_database() -> None:
+    """Truncate all application tables before and after each API test."""
+    async with engine.begin() as conn:
+        await conn.execute(text(_TRUNCATE_TABLES))
+    yield
+    async with engine.begin() as conn:
+        await conn.execute(text(_TRUNCATE_TABLES))
 
 
 @pytest.fixture
-async def client() -> AsyncClient:
+async def client(reset_database: None) -> AsyncClient:
     transport = ASGITransport(app=app)  # type: ignore[arg-type]
     async with AsyncClient(transport=transport, base_url="http://test") as ac:
         yield ac

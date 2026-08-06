@@ -48,16 +48,26 @@ class TestUserModel:
 
 
 class TestAccountModel:
-    def test_create_minimal(self) -> None:
-        account = Account(
-            user_id=uuid.uuid4(),
-            name="Test Account",
-            currency="TRY",
-        )
-        assert account.name == "Test Account"
-        assert account.currency == "TRY"
-        assert account.is_active is True
-        assert account.allow_negative_balance is False
+    async def test_create_minimal(self) -> None:
+        async with async_session_factory() as session:
+            user = User(email="acct-test@example.com", display_name="Acct Test")
+            session.add(user)
+            await session.flush()
+
+            account = Account(
+                user_id=user.id,
+                name="Test Account",
+                currency="TRY",
+            )
+            session.add(account)
+            await session.flush()
+
+            assert account.name == "Test Account"
+            assert account.currency == "TRY"
+            assert account.is_active is True
+            assert account.allow_negative_balance is False
+
+            await session.rollback()
 
 
 class TestAssetModel:
@@ -134,19 +144,33 @@ class TestTransactionModel:
         assert isinstance(txn.tax_amount, Decimal)
         assert isinstance(txn.net_cash_effect, Decimal)
 
-    def test_defaults(self) -> None:
-        txn = Transaction(
-            account_id=uuid.uuid4(),
-            transaction_type=TransactionType.DEPOSIT,
-            gross_amount=Decimal("100.0000"),
-            net_cash_effect=Decimal("100.0000"),
-            transaction_date=datetime.now(UTC),
-        )
-        assert txn.status == TransactionStatus.DRAFT
-        assert txn.source == TransactionSource.MANUAL
-        assert txn.fee_amount == Decimal("0")
-        assert txn.tax_amount == Decimal("0")
-        assert txn.asset_id is None
+    async def test_defaults(self) -> None:
+        async with async_session_factory() as session:
+            user = User(email="txn-defaults@example.com", display_name="Txn Defaults")
+            session.add(user)
+            await session.flush()
+
+            account = Account(user_id=user.id, name="Defaults Acct", currency="TRY")
+            session.add(account)
+            await session.flush()
+
+            txn = Transaction(
+                account_id=account.id,
+                transaction_type=TransactionType.DEPOSIT,
+                gross_amount=Decimal("100.0000"),
+                net_cash_effect=Decimal("100.0000"),
+                transaction_date=datetime.now(UTC),
+            )
+            session.add(txn)
+            await session.flush()
+
+            assert txn.status == TransactionStatus.DRAFT
+            assert txn.source == TransactionSource.MANUAL
+            assert txn.fee_amount == Decimal("0")
+            assert txn.tax_amount == Decimal("0")
+            assert txn.asset_id is None
+
+            await session.rollback()
 
     def test_cash_event_nullable_asset(self) -> None:
         txn = Transaction(
