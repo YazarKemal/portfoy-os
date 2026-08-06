@@ -1,10 +1,18 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
+import Link from "next/link";
 
 type ButtonVariant = "primary" | "secondary" | "tertiary" | "destructive";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
   children: ReactNode;
+}
+
+interface ButtonLinkProps {
+  variant?: ButtonVariant;
+  children: ReactNode;
+  href: string;
+  className?: string;
 }
 
 const variantStyles: Record<ButtonVariant, string> = {
@@ -18,6 +26,9 @@ const variantStyles: Record<ButtonVariant, string> = {
     "bg-[var(--color-negative)] text-white hover:opacity-90",
 };
 
+const baseStyles =
+  "inline-flex items-center justify-center gap-2 rounded-[var(--radius-md)] px-4 py-2.5 text-sm font-semibold transition-[background,opacity,box-shadow] duration-[var(--motion-standard)] disabled:cursor-not-allowed disabled:opacity-50 active:scale-[0.98] min-h-[44px] min-w-[44px]";
+
 export function Button({
   variant = "primary",
   className = "",
@@ -26,11 +37,27 @@ export function Button({
 }: ButtonProps) {
   return (
     <button
-      className={`inline-flex items-center justify-center gap-2 rounded-[var(--radius-md)] px-4 py-2.5 text-sm font-semibold transition-[background,opacity,box-shadow] duration-[var(--motion-standard)] disabled:cursor-not-allowed disabled:opacity-50 min-h-[44px] min-w-[44px] ${variantStyles[variant]} ${className}`}
+      className={`${baseStyles} ${variantStyles[variant]} ${className}`}
       {...props}
     >
       {children}
     </button>
+  );
+}
+
+export function ButtonLink({
+  variant = "primary",
+  className = "",
+  children,
+  href,
+}: ButtonLinkProps) {
+  return (
+    <Link
+      href={href}
+      className={`${baseStyles} ${variantStyles[variant]} ${className}`}
+    >
+      {children}
+    </Link>
   );
 }
 
@@ -43,7 +70,7 @@ export function IconButton({
   return (
     <button
       aria-label={label}
-      className={`inline-flex items-center justify-center rounded-[var(--radius-md)] p-2 text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-subtle)] hover:text-[var(--color-text-primary)] transition-colors duration-[var(--motion-standard)] focus-visible:outline-2 focus-visible:outline-[var(--color-focus)] focus-visible:outline-offset-2 min-h-[44px] min-w-[44px] disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
+      className={`inline-flex items-center justify-center rounded-[var(--radius-md)] p-2 text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-subtle)] hover:text-[var(--color-text-primary)] active:scale-[0.98] transition-[color,background-color,transform] duration-[var(--motion-standard)] focus-visible:outline-2 focus-visible:outline-[var(--color-focus)] focus-visible:outline-offset-2 min-h-[44px] min-w-[44px] disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
       {...props}
     >
       {children}

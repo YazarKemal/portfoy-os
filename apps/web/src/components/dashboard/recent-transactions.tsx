@@ -1,36 +1,46 @@
 import Link from "next/link";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { IconPlus } from "@/components/ui/icons";
+import { EmptyState } from "@/components/ui/empty-state";
+import { ButtonLink } from "@/components/ui/button";
+import {
+  IconArrowDown,
+  IconArrowUp,
+  IconArrowRight,
+  IconArrowLeft,
+  IconPercent,
+  IconMinus,
+  IconPlus,
+} from "@/components/ui/icons";
 import { formatMoney, formatQuantity } from "@/lib/formatters";
-import type { TransactionItem } from "@/types/dashboard";
+import type { ReactNode } from "react";
+import type { TransactionItem, TransactionTypeLabel } from "@/types/dashboard";
 
 interface RecentTransactionsProps {
   transactions: TransactionItem[];
+  masked?: boolean;
 }
 
-const typeIcons: Record<string, string> = {
-  BUY: "→",
-  SELL: "←",
-  DEPOSIT: "↓",
-  WITHDRAWAL: "↑",
-  DIVIDEND: "✦",
-  INTEREST: "✦",
-  FEE: "✕",
-  TAX: "✕",
-  TRANSFER_IN: "↓",
-  TRANSFER_OUT: "↑",
+const typeIcons: Record<TransactionTypeLabel, ReactNode> = {
+  BUY: <IconArrowRight size={16} aria-hidden="true" />,
+  SELL: <IconArrowLeft size={16} aria-hidden="true" />,
+  DEPOSIT: <IconArrowDown size={16} aria-hidden="true" />,
+  WITHDRAWAL: <IconArrowUp size={16} aria-hidden="true" />,
+  DIVIDEND: <IconPercent size={16} aria-hidden="true" />,
+  INTEREST: <IconPercent size={16} aria-hidden="true" />,
+  FEE: <IconMinus size={16} aria-hidden="true" />,
+  TAX: <IconMinus size={16} aria-hidden="true" />,
+  TRANSFER_IN: <IconArrowDown size={16} aria-hidden="true" />,
+  TRANSFER_OUT: <IconArrowUp size={16} aria-hidden="true" />,
 };
 
-export function RecentTransactions({ transactions }: RecentTransactionsProps) {
+export function RecentTransactions({ transactions, masked = false }: RecentTransactionsProps) {
   if (transactions.length === 0) {
     return (
-      <Card>
-        <p className="text-sm text-[var(--color-text-tertiary)] text-center py-8">
-          Henüz işlem kaydı bulunmuyor.
-        </p>
-      </Card>
+      <EmptyState
+        title="Henüz işlem kaydı bulunmuyor"
+        description="İlk işleminizi ekleyerek portföyünüzü takip etmeye başlayabilirsiniz."
+      />
     );
   }
 
@@ -53,10 +63,10 @@ export function RecentTransactions({ transactions }: RecentTransactionsProps) {
           <li key={tx.id} className="flex items-center gap-3 py-3 first:pt-0 last:pb-0">
             {/* Type icon */}
             <span
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--radius-sm)] bg-[var(--color-bg-subtle)] text-sm font-semibold text-[var(--color-text-secondary)]"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--radius-sm)] bg-[var(--color-bg-subtle)] text-[var(--color-text-secondary)]"
               aria-hidden="true"
             >
-              {typeIcons[tx.type] ?? "·"}
+              {typeIcons[tx.type] ?? <IconMinus size={16} aria-hidden="true" />}
             </span>
 
             <div className="flex-1 min-w-0">
@@ -75,7 +85,7 @@ export function RecentTransactions({ transactions }: RecentTransactionsProps) {
 
             <div className="text-right shrink-0">
               <p className="text-sm font-semibold tabular-nums text-[var(--color-text-primary)]">
-                {formatMoney(tx.totalValue)}
+                {masked ? "₺••••••" : formatMoney(tx.totalValue)}
               </p>
               <p className="text-xs text-[var(--color-text-tertiary)]">
                 {tx.quantity ? `${formatQuantity(tx.quantity)} adet · ` : ""}{tx.date}
@@ -86,10 +96,10 @@ export function RecentTransactions({ transactions }: RecentTransactionsProps) {
       </ul>
 
       <div className="mt-4 border-t border-[var(--color-border-subtle)] pt-4">
-        <Button variant="primary" className="w-full">
+        <ButtonLink href="/transactions?intent=create" variant="primary" className="w-full">
           <IconPlus size={18} />
           İşlem ekle
-        </Button>
+        </ButtonLink>
       </div>
     </Card>
   );

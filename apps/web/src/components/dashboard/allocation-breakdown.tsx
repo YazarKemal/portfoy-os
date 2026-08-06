@@ -1,9 +1,11 @@
 import { Card } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
 import { formatMoney, formatPercent } from "@/lib/formatters";
 import type { AllocationItem } from "@/types/dashboard";
 
 interface AllocationBreakdownProps {
   items: AllocationItem[];
+  masked?: boolean;
 }
 
 /** Render a donut chart segment arc path */
@@ -20,7 +22,6 @@ function DonutSegment({
   strokeWidth: number;
   colorVar: string;
 }) {
-  // Convert angles to SVG arc paths on a circle
   const cx = 80;
   const cy = 80;
   const r = radius;
@@ -45,7 +46,7 @@ function DonutSegment({
   );
 }
 
-export function AllocationBreakdown({ items }: AllocationBreakdownProps) {
+export function AllocationBreakdown({ items, masked = false }: AllocationBreakdownProps) {
   const total = items.reduce((sum, i) => sum + i.value, 0);
   const strokeWidth = 28;
   const radius = 60;
@@ -61,11 +62,10 @@ export function AllocationBreakdown({ items }: AllocationBreakdownProps) {
 
   if (items.length === 0) {
     return (
-      <Card>
-        <p className="text-sm text-[var(--color-text-tertiary)] text-center py-8">
-          Dağılım verisi bulunmuyor.
-        </p>
-      </Card>
+      <EmptyState
+        title="Dağılım verisi bulunmuyor"
+        description="Portföyünüze varlık eklediğinizde dağılım burada görüntülenecektir."
+      />
     );
   }
 
@@ -107,7 +107,7 @@ export function AllocationBreakdown({ items }: AllocationBreakdownProps) {
               {item.category}
             </span>
             <span className="tabular-nums text-[var(--color-text-secondary)]">
-              {formatMoney(item.value)}
+              {masked ? "₺••••••" : formatMoney(item.value)}
             </span>
             <span className="tabular-nums text-xs text-[var(--color-text-tertiary)] w-12 text-right">
               {formatPercent(item.percentage, true)}
@@ -117,7 +117,9 @@ export function AllocationBreakdown({ items }: AllocationBreakdownProps) {
       </ul>
 
       <div className="sr-only">
-        Toplam portföy değeri: {formatMoney(total)}. {items.map((i) => `${i.category}: ${formatPercent(i.percentage, true)}`).join(", ")}.
+        {masked
+          ? "Varlık dağılımı gizlilik modunda maskelenmiştir."
+          : `Toplam portföy değeri: ${formatMoney(total)}. ${items.map((i) => `${i.category}: ${formatPercent(i.percentage, true)}`).join(", ")}.`}
       </div>
     </Card>
   );

@@ -227,3 +227,85 @@ export function IconFileText(props: IconProps) {
     </Icon>
   );
 }
+
+export function IconArrowUp(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <line x1="12" y1="19" x2="12" y2="5" />
+      <polyline points="5 12 12 5 19 12" />
+    </Icon>
+  );
+}
+
+export function IconArrowDown(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <line x1="12" y1="5" x2="12" y2="19" />
+      <polyline points="19 12 12 19 5 12" />
+    </Icon>
+  );
+}
+
+export function IconArrowRight(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <line x1="5" y1="12" x2="19" y2="12" />
+      <polyline points="12 5 19 12 12 19" />
+    </Icon>
+  );
+}
+
+export function IconArrowLeft(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <line x1="19" y1="12" x2="5" y2="12" />
+      <polyline points="12 19 5 12 12 5" />
+    </Icon>
+  );
+}
+
+export function IconDollarSign(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <line x1="12" y1="1" x2="12" y2="23" />
+      <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" />
+    </Icon>
+  );
+}
+
+export function IconPercent(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <line x1="19" y1="5" x2="5" y2="19" />
+      <circle cx="6.5" cy="6.5" r="2.5" />
+      <circle cx="17.5" cy="17.5" r="2.5" />
+    </Icon>
+  );
+}
+
+export function IconMinus(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <line x1="5" y1="12" x2="19" y2="12" />
+    </Icon>
+  );
+}
+
+export function IconRefresh(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <polyline points="23 4 23 10 17 10" />
+      <polyline points="1 20 1 14 7 14" />
+      <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15" />
+    </Icon>
+  );
+}
+
+export function IconLock(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+      <path d="M7 11V7a5 5 0 0110 0v4" />
+    </Icon>
+  );
+}

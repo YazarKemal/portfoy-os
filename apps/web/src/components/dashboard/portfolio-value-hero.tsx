@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { IconButton } from "@/components/ui/button";
 import { IconEye } from "@/components/ui/icons";
@@ -14,6 +13,10 @@ interface PortfolioValueHeroProps {
   totalReturn: number;
   totalReturnPercent: number;
   lastUpdated: string;
+  period: PeriodKey;
+  onPeriodChange: (p: PeriodKey) => void;
+  privacy: PrivacyMode;
+  onPrivacyToggle: () => void;
 }
 
 const PERIODS: { key: PeriodKey; label: string }[] = [
@@ -32,10 +35,11 @@ export function PortfolioValueHero({
   totalReturn,
   totalReturnPercent,
   lastUpdated,
+  period,
+  onPeriodChange,
+  privacy,
+  onPrivacyToggle,
 }: PortfolioValueHeroProps) {
-  const [period, setPeriod] = useState<PeriodKey>("ALL");
-  const [privacy, setPrivacy] = useState<PrivacyMode>("visible");
-
   const masked = privacy === "masked";
   const daily = formatChange(dailyChange, dailyChangePercent);
   const total = formatChange(totalReturn, totalReturnPercent);
@@ -47,7 +51,8 @@ export function PortfolioValueHero({
         {PERIODS.map((p) => (
           <button
             key={p.key}
-            onClick={() => setPeriod(p.key)}
+            type="button"
+            onClick={() => onPeriodChange(p.key)}
             className={`rounded-[var(--radius-sm)] px-3 py-1.5 text-xs font-semibold transition-colors duration-[var(--motion-standard)] ${
               period === p.key
                 ? "bg-white/20 text-[var(--color-text-inverse)]"
@@ -60,9 +65,7 @@ export function PortfolioValueHero({
         <div className="ml-auto flex items-center gap-2">
           <IconButton
             label={masked ? "Değerleri göster" : "Değerleri gizle"}
-            onClick={() =>
-              setPrivacy(masked ? "visible" : "masked")
-            }
+            onClick={onPrivacyToggle}
             className="text-[var(--color-text-inverse)]/60 hover:text-[var(--color-text-inverse)] hover:bg-white/10"
           >
             <IconEye size={18} />
@@ -76,9 +79,7 @@ export function PortfolioValueHero({
           Toplam portföy değeri
         </p>
         <p className="financial-display text-[var(--color-text-inverse)] text-[40px] leading-[48px] lg:text-[40px] lg:leading-[48px]">
-          {masked
-            ? "₺••••••••"
-            : formatMoney(totalValue)}
+          {masked ? "₺••••••" : formatMoney(totalValue)}
         </p>
       </div>
 

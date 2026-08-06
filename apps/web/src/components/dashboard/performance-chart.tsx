@@ -3,10 +3,13 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { formatMoney, formatNumber } from "@/lib/formatters";
-import type { PerformancePoint, PeriodKey } from "@/types/dashboard";
+import type { PerformancePoint, PeriodKey, PrivacyMode } from "@/types/dashboard";
 
 interface PerformanceChartProps {
   data: PerformancePoint[];
+  period: PeriodKey;
+  onPeriodChange: (p: PeriodKey) => void;
+  privacy: PrivacyMode;
 }
 
 const PERIODS: { key: PeriodKey; label: string }[] = [
@@ -18,9 +21,9 @@ const PERIODS: { key: PeriodKey; label: string }[] = [
   { key: "ALL", label: "Tümü" },
 ];
 
-export function PerformanceChart({ data }: PerformanceChartProps) {
-  const [period, setPeriod] = useState<PeriodKey>("ALL");
+export function PerformanceChart({ data, period, onPeriodChange, privacy }: PerformanceChartProps) {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const masked = privacy === "masked";
 
   if (data.length < 2) {
     return (
@@ -71,7 +74,8 @@ export function PerformanceChart({ data }: PerformanceChartProps) {
           {PERIODS.map((p) => (
             <button
               key={p.key}
-              onClick={() => setPeriod(p.key)}
+              type="button"
+              onClick={() => onPeriodChange(p.key)}
               className={`rounded-[var(--radius-sm)] px-2.5 py-1 text-xs font-semibold transition-colors ${
                 period === p.key
                   ? "bg-[var(--color-brand-primary)] text-[var(--color-text-inverse)]"
@@ -84,7 +88,15 @@ export function PerformanceChart({ data }: PerformanceChartProps) {
         </div>
       </div>
 
-      <div className="relative" role="img" aria-label="Portföy değeri performans grafiği. Portföy değeri zaman içinde artış göstermiştir.">
+      <div className="relative" role="img" aria-label={masked ? "Gizlilik modu açık. Grafik değerleri maskelenmiştir." : "Portföy değeri performans grafiği. Portföy değeri zaman içinde artış göstermiştir."}>
+        {masked && (
+          <div className="absolute inset-0 z-10 flex items-center justify-center bg-[var(--color-bg-surface)]/80 rounded-[var(--radius-sm)]">
+            <span className="text-sm font-medium text-[var(--color-text-tertiary)]">
+              Gizlilik modu açık
+            </span>
+          </div>
+        )}
+
         <svg
           viewBox={`0 0 ${width} ${height}`}
           className="w-full h-auto"
@@ -110,7 +122,7 @@ export function PerformanceChart({ data }: PerformanceChartProps) {
                 fill="var(--color-text-tertiary)"
                 textAnchor="start"
               >
-                {formatNumber(v).replace(",", ".").slice(0, 8)}
+                {masked ? "••••" : formatNumber(v).replace(",", ".").slice(0, 8)}
               </text>
             </g>
           ))}
@@ -162,7 +174,7 @@ export function PerformanceChart({ data }: PerformanceChartProps) {
         </svg>
 
         {/* Tooltip */}
-        {activeIndex !== null && (
+        {activeIndex !== null && !masked && (
           <div
             className="absolute top-2 rounded-[var(--radius-sm)] border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] px-3 py-2 text-xs shadow-sm"
             style={{
@@ -183,9 +195,9 @@ export function PerformanceChart({ data }: PerformanceChartProps) {
 
         {/* Screen reader summary */}
         <div className="sr-only">
-          Performans grafiği: Portföy değeri{" "}
-          {formatMoney(data[0].value)} seviyesinden{" "}
-          {formatMoney(data[data.length - 1].value)} seviyesine yükselmiştir.
+          {masked
+            ? "Gizlilik modu açık. Grafik değerleri maskelenmiştir."
+            : `Performans grafiği: Portföy değeri ${formatMoney(data[0].value)} seviyesinden ${formatMoney(data[data.length - 1].value)} seviyesine yükselmiştir.`}
         </div>
       </div>
 

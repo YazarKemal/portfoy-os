@@ -13,11 +13,12 @@ export function SectionHeader({
   description,
   children,
   className = "",
+  id,
 }: SectionHeaderProps) {
   return (
     <div className={`flex flex-wrap items-end justify-between gap-3 ${className}`}>
       <div>
-        <h2 className="text-[20px] leading-[28px] font-semibold text-[var(--color-text-primary)]">
+        <h2 id={id} className="text-[20px] leading-[28px] font-semibold text-[var(--color-text-primary)]">
           {title}
         </h2>
         {description && (

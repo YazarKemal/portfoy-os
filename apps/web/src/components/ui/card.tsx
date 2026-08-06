@@ -27,9 +27,16 @@ export function Card({
   onClick,
 }: CardProps) {
   const Component = onClick ? "button" : "div";
+
+  const interactiveStyles =
+    onClick
+      ? "hover:border-[var(--color-border-strong)] cursor-pointer transition-colors duration-[var(--motion-standard)]"
+      : "";
+
   return (
     <Component
-      className={`rounded-[var(--radius-lg)] p-6 ${variantStyles[variant]} ${className}`}
+      type={onClick ? "button" : undefined}
+      className={`rounded-[var(--radius-lg)] p-6 ${interactiveStyles} ${variant === "inverse" ? variantStyles.inverse : variant === "subtle" ? variantStyles.subtle : variantStyles.default} ${className}`}
       onClick={onClick}
     >
       {children}

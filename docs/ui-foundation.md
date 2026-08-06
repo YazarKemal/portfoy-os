@@ -233,7 +233,7 @@ Rules:
 
 - Asset name is primary; code/provider metadata is secondary.
 - Numeric columns align right and use tabular figures.
-- The row is clickable but still exposes an accessible `Detay` action.
+- Each holding row exposes an explicit, accessible `Detay` link. The table row itself is not clickable.
 - Sorting must state active direction.
 - Positive and negative results show `+`/`−` signs and labels, not colour alone.
 - On mobile, transform each holding into a compact position card showing value, quantity, cost, total result, and freshness.

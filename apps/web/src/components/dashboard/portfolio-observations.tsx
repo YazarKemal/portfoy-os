@@ -1,4 +1,5 @@
 import { Card } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
 import { IconAlertTriangle, IconInfo } from "@/components/ui/icons";
 import type { PortfolioObservation } from "@/types/dashboard";
 
@@ -23,11 +24,10 @@ const kindColor = {
 export function PortfolioObservations({ observations }: PortfolioObservationsProps) {
   if (observations.length === 0) {
     return (
-      <Card>
-        <p className="text-sm text-[var(--color-text-tertiary)] text-center py-8">
-          Gözlem bulunmuyor.
-        </p>
-      </Card>
+      <EmptyState
+        title="Gözlem bulunmuyor"
+        description="Portföyünüzle ilgili gözlemler burada listelenecektir."
+      />
     );
   }
 

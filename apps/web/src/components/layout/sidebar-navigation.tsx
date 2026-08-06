@@ -48,8 +48,8 @@ function SidebarNavItem({ item, collapsed }: { item: NavItem; collapsed: boolean
     ? "bg-[var(--color-brand-soft)] text-[var(--color-brand-primary)]"
     : "text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-subtle)] hover:text-[var(--color-text-primary)]";
 
-  const disabledClasses = item.disabled
-    ? "cursor-not-allowed opacity-50"
+  const collapsedClasses = collapsed
+    ? "justify-center min-h-[44px] min-w-[44px] p-0"
     : "";
 
   const content = (
@@ -61,16 +61,29 @@ function SidebarNavItem({ item, collapsed }: { item: NavItem; collapsed: boolean
           {item.badge}
         </Badge>
       )}
+      {/* Yakında indicator for collapsed disabled items */}
+      {collapsed && item.disabled && (
+        <span className="sr-only"> — Yakında</span>
+      )}
     </>
   );
 
   if (item.disabled) {
     return (
       <span
-        className={`${baseClasses} ${activeClasses} ${disabledClasses}`}
+        className={`${baseClasses} ${activeClasses} ${collapsedClasses} cursor-not-allowed opacity-60`}
         aria-disabled="true"
+        aria-label={collapsed ? `${item.label}, Yakında` : undefined}
+        title={item.badge ?? undefined}
       >
         {content}
+        {/* Lock/dot indicator for collapsed disabled */}
+        {collapsed && (
+          <span
+            className="absolute bottom-1 right-1 h-1.5 w-1.5 rounded-full bg-[var(--color-text-tertiary)]"
+            aria-hidden="true"
+          />
+        )}
       </span>
     );
   }
@@ -78,7 +91,7 @@ function SidebarNavItem({ item, collapsed }: { item: NavItem; collapsed: boolean
   return (
     <Link
       href={item.href}
-      className={`${baseClasses} ${activeClasses}`}
+      className={`${baseClasses} ${activeClasses} ${collapsedClasses}`}
       aria-current={isActive ? "page" : undefined}
     >
       {content}
@@ -105,11 +118,15 @@ export function SidebarRail() {
   return (
     <nav className="flex flex-1 flex-col items-center gap-1 overflow-y-auto px-2 py-4 custom-scrollbar" aria-label="Ana menü">
       {primaryItems.map((item) => (
-        <SidebarNavItem key={item.label} item={item} collapsed={true} />
+        <div key={item.label} className="relative">
+          <SidebarNavItem item={item} collapsed={true} />
+        </div>
       ))}
       <div className="mt-auto border-t border-[var(--color-border-subtle)] pt-2 w-full flex flex-col items-center gap-1">
         {secondaryItems.map((item) => (
-          <SidebarNavItem key={item.label} item={item} collapsed={true} />
+          <div key={item.label} className="relative">
+            <SidebarNavItem item={item} collapsed={true} />
+          </div>
         ))}
       </div>
     </nav>

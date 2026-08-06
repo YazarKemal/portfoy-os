@@ -7,6 +7,7 @@ interface MetricCardProps {
   context?: string;
   currency?: string;
   className?: string;
+  masked?: boolean;
 }
 
 export function MetricCard({
@@ -15,6 +16,7 @@ export function MetricCard({
   context,
   currency,
   className = "",
+  masked = false,
 }: MetricCardProps) {
   const sign = getSign(value);
 
@@ -24,13 +26,15 @@ export function MetricCard({
         {label}
       </h3>
       <p className={`financial-value text-xl font-semibold tabular-nums ${
-        sign === "+"
-          ? "text-positive"
-          : sign === "−"
-            ? "text-negative"
-            : "text-[var(--color-text-primary)]"
+        masked
+          ? "text-[var(--color-text-primary)]"
+          : sign === "+"
+            ? "text-positive"
+            : sign === "−"
+              ? "text-negative"
+              : "text-[var(--color-text-primary)]"
       }`}>
-        {sign}{formatMoney(Math.abs(value), currency)}
+        {masked ? "₺••••••" : `${sign}${formatMoney(Math.abs(value), currency)}`}
       </p>
       {context && (
         <p className="mt-1.5 text-xs text-[var(--color-text-tertiary)] leading-relaxed">

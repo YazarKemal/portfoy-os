@@ -89,3 +89,8 @@ export interface DataSourceStatus {
 export type PeriodKey = "1A" | "3A" | "6A" | "YBB" | "1Y" | "ALL";
 
 export type PrivacyMode = "visible" | "masked";
+
+export interface PeriodReturn {
+  amount: number;
+  percentage: number;
+}

@@ -1,29 +1,28 @@
 import Link from "next/link";
 import { Card } from "@/components/ui/card";
-import { DataFreshnessBadge } from "./data-freshness-badge";
+import { DataFreshnessBadge } from "@/components/ui/data-freshness-badge";
+import { IconChevronRight } from "@/components/ui/icons";
 import { formatMoney, formatQuantity, formatChange, changeColorClass } from "@/lib/formatters";
 import type { Holding } from "@/types/dashboard";
 
 interface HoldingCardProps {
   holding: Holding;
+  masked?: boolean;
 }
 
-export function HoldingCard({ holding }: HoldingCardProps) {
+export function HoldingCard({ holding, masked = false }: HoldingCardProps) {
   const daily = formatChange(holding.dailyChange, holding.dailyChangePercent);
-  const dailyClass = changeColorClass(holding.dailyChange);
-  const totalSign = holding.totalPnL > 0 ? "+" : holding.totalPnL < 0 ? "−" : "";
-  const totalClass = changeColorClass(holding.totalPnL);
+  const dailyClass = masked ? "" : changeColorClass(holding.dailyChange);
+  const totalSign = masked ? "" : holding.totalPnL > 0 ? "+" : holding.totalPnL < 0 ? "−" : "";
+  const totalClass = masked ? "" : changeColorClass(holding.totalPnL);
 
   return (
-    <Card variant="interactive" className="space-y-3">
+    <Card className="space-y-3">
       <div className="flex items-start justify-between">
         <div>
-          <Link
-            href={`/portfolio/${holding.id}`}
-            className="font-semibold text-[var(--color-brand-primary)] hover:underline text-[16px] leading-[24px]"
-          >
+          <h3 className="font-semibold text-[var(--color-text-primary)] text-[16px] leading-[24px]">
             {holding.assetName}
-          </Link>
+          </h3>
           <p className="text-xs text-[var(--color-text-tertiary)]">
             {holding.assetCode} · {holding.assetTypeLabel}
           </p>
@@ -35,7 +34,7 @@ export function HoldingCard({ holding }: HoldingCardProps) {
         <div>
           <p className="text-xs text-[var(--color-text-tertiary)]">Piyasa Değeri</p>
           <p className="font-semibold tabular-nums text-[var(--color-text-primary)]">
-            {formatMoney(holding.marketValue)}
+            {masked ? "₺••••••" : formatMoney(holding.marketValue)}
           </p>
         </div>
         <div>
@@ -47,26 +46,28 @@ export function HoldingCard({ holding }: HoldingCardProps) {
         <div>
           <p className="text-xs text-[var(--color-text-tertiary)]">Ort. Maliyet</p>
           <p className="tabular-nums text-[var(--color-text-primary)]">
-            {formatMoney(holding.averageCost)}
+            {masked ? "₺••••••" : formatMoney(holding.averageCost)}
           </p>
         </div>
         <div>
           <p className="text-xs text-[var(--color-text-tertiary)]">Toplam K/Z</p>
           <p className={`font-medium tabular-nums ${totalClass}`}>
-            {totalSign}{formatMoney(Math.abs(holding.totalPnL))}
+            {masked ? "•••••" : `${totalSign}${formatMoney(Math.abs(holding.totalPnL))}`}
           </p>
         </div>
       </div>
 
       <div className="flex items-center justify-between border-t border-[var(--color-border-subtle)] pt-2">
         <p className={`text-xs tabular-nums ${dailyClass}`}>
-          Günlük: {daily.amount} ({daily.percentStr})
+          Günlük: {masked ? "•••••" : `${daily.amount} (${daily.percentStr})`}
         </p>
         <Link
           href={`/portfolio/${holding.id}`}
-          className="text-xs font-medium text-[var(--color-brand-primary)] hover:underline"
+          className="inline-flex items-center gap-1 text-xs font-medium text-[var(--color-brand-primary)] hover:underline"
+          aria-label={`${holding.assetName} detayını aç`}
         >
-          Detay →
+          Detay
+          <IconChevronRight size={14} aria-hidden="true" />
         </Link>
       </div>
     </Card>
