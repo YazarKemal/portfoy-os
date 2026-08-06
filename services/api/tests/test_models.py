@@ -5,12 +5,17 @@ from datetime import UTC, datetime
 from decimal import Decimal
 
 from app.database import async_session_factory
-from app.enums import DataLatency, DataSourceStatusState, TransactionType
+from app.enums import (
+    DataLatency,
+    DataSourceStatusState,
+    TransactionSource,
+    TransactionStatus,
+    TransactionType,
+)
 from app.models import (
     Account,
     Asset,
     AssetPrice,
-    CashFlow,
     DataSourceStatus,
     PortfolioSnapshot,
     Transaction,
@@ -43,14 +48,26 @@ class TestUserModel:
 
 
 class TestAccountModel:
-    def test_create_minimal(self) -> None:
-        account = Account(
-            user_id=uuid.uuid4(),
-            name="Test Account",
-            currency="TRY",
-        )
-        assert account.name == "Test Account"
-        assert account.currency == "TRY"
+    async def test_create_minimal(self) -> None:
+        async with async_session_factory() as session:
+            user = User(email="acct-test@example.com", display_name="Acct Test")
+            session.add(user)
+            await session.flush()
+
+            account = Account(
+                user_id=user.id,
+                name="Test Account",
+                currency="TRY",
+            )
+            session.add(account)
+            await session.flush()
+
+            assert account.name == "Test Account"
+            assert account.currency == "TRY"
+            assert account.is_active is True
+            assert account.allow_negative_balance is False
+
+            await session.rollback()
 
 
 class TestAssetModel:
@@ -75,7 +92,6 @@ class TestAssetPriceModel:
         assert price.data_latency == DataLatency.MANUAL
 
     def test_price_is_numeric_not_float(self) -> None:
-        """Money fields must use Decimal, not float."""
         price = AssetPrice(
             asset_id=uuid.uuid4(),
             price=Decimal("100.5000"),
@@ -87,17 +103,24 @@ class TestAssetPriceModel:
 
 
 class TestTransactionModel:
-    def test_create_buy(self) -> None:
+    def test_create_buy_draft(self) -> None:
         txn = Transaction(
             account_id=uuid.uuid4(),
             asset_id=uuid.uuid4(),
             transaction_type=TransactionType.BUY,
             quantity=Decimal("10"),
-            unit_price=Decimal("100.0000"),
-            total_amount=Decimal("1000.0000"),
+            unit_price=Decimal("100.00000000"),
+            gross_amount=Decimal("1000.0000"),
+            fee_amount=Decimal("0"),
+            tax_amount=Decimal("0"),
+            net_cash_effect=Decimal("-1000.0000"),
+            status=TransactionStatus.DRAFT,
+            source=TransactionSource.MANUAL,
             transaction_date=datetime.now(UTC),
         )
         assert txn.transaction_type == TransactionType.BUY
+        assert txn.status == TransactionStatus.DRAFT
+        assert txn.source == TransactionSource.MANUAL
 
     def test_amount_fields_are_decimal(self) -> None:
         txn = Transaction(
@@ -105,26 +128,64 @@ class TestTransactionModel:
             asset_id=uuid.uuid4(),
             transaction_type=TransactionType.BUY,
             quantity=Decimal("10"),
-            unit_price=Decimal("100.0000"),
-            total_amount=Decimal("1000.0000"),
+            unit_price=Decimal("100.00000000"),
+            gross_amount=Decimal("1000.0000"),
+            fee_amount=Decimal("0"),
+            tax_amount=Decimal("0"),
+            net_cash_effect=Decimal("-1000.0000"),
+            status=TransactionStatus.DRAFT,
+            source=TransactionSource.MANUAL,
             transaction_date=datetime.now(UTC),
         )
         assert isinstance(txn.quantity, Decimal)
         assert isinstance(txn.unit_price, Decimal)
-        assert isinstance(txn.total_amount, Decimal)
+        assert isinstance(txn.gross_amount, Decimal)
+        assert isinstance(txn.fee_amount, Decimal)
+        assert isinstance(txn.tax_amount, Decimal)
+        assert isinstance(txn.net_cash_effect, Decimal)
 
+    async def test_defaults(self) -> None:
+        async with async_session_factory() as session:
+            user = User(email="txn-defaults@example.com", display_name="Txn Defaults")
+            session.add(user)
+            await session.flush()
 
-class TestCashFlowModel:
-    def test_create_cash_flow(self) -> None:
-        cf = CashFlow(
+            account = Account(user_id=user.id, name="Defaults Acct", currency="TRY")
+            session.add(account)
+            await session.flush()
+
+            txn = Transaction(
+                account_id=account.id,
+                transaction_type=TransactionType.DEPOSIT,
+                gross_amount=Decimal("100.0000"),
+                net_cash_effect=Decimal("100.0000"),
+                transaction_date=datetime.now(UTC),
+            )
+            session.add(txn)
+            await session.flush()
+
+            assert txn.status == TransactionStatus.DRAFT
+            assert txn.source == TransactionSource.MANUAL
+            assert txn.fee_amount == Decimal("0")
+            assert txn.tax_amount == Decimal("0")
+            assert txn.asset_id is None
+
+            await session.rollback()
+
+    def test_cash_event_nullable_asset(self) -> None:
+        txn = Transaction(
             account_id=uuid.uuid4(),
-            cash_flow_type=TransactionType.DIVIDEND,
-            amount=Decimal("50.0000"),
+            asset_id=None,
+            transaction_type=TransactionType.DEPOSIT,
+            quantity=None,
+            unit_price=None,
+            gross_amount=Decimal("500.0000"),
+            net_cash_effect=Decimal("500.0000"),
             transaction_date=datetime.now(UTC),
         )
-        assert cf.cash_flow_type == TransactionType.DIVIDEND
-        assert cf.amount == Decimal("50.0000")
-        assert isinstance(cf.amount, Decimal)
+        assert txn.asset_id is None
+        assert txn.quantity is None
+        assert txn.unit_price is None
 
 
 class TestPortfolioSnapshotModel:
