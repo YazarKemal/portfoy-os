@@ -105,12 +105,14 @@ export function DashboardContent() {
             value={DEMO_METRICS.unrealizedPnL}
             context="Açık pozisyonların güncel piyasa değerine göre sonucu"
             masked={privacy === "masked"}
+            tone="signed"
           />
           <MetricCard
             label="Gerçekleşmiş kâr/zarar"
             value={DEMO_METRICS.realizedPnL}
             context="Satışla kesinleşmiş toplam sonuç"
             masked={privacy === "masked"}
+            tone="signed"
           />
           <MetricCard
             label="Nakit ve kısa vadeli rezerv"
@@ -133,7 +135,6 @@ export function DashboardContent() {
             <PerformanceChart
               data={chartData}
               period={period}
-              onPeriodChange={setPeriod}
               privacy={privacy}
             />
           </div>
@@ -182,7 +183,7 @@ export function DashboardContent() {
       </section>
 
       {/* Demo data notice */}
-      <p className="text-center text-[10px] text-[var(--color-text-tertiary)] py-4">
+      <p className="text-center text-xs text-[var(--color-text-tertiary)] py-4">
         Demo veri · Bu gösterge paneli kurgusal portföy değerleri içerir, yatırım tavsiyesi niteliği taşımaz.
       </p>
     </div>

@@ -32,7 +32,7 @@ export function PortfolioObservations({ observations }: PortfolioObservationsPro
   }
 
   return (
-    <Card variant="subtle">
+    <Card variant="subtle" className="h-full flex flex-col">
       <h3 className="text-[16px] leading-[24px] font-semibold text-[var(--color-text-primary)] mb-3">
         Portföy gözlemleri
       </h3>
@@ -48,7 +48,7 @@ export function PortfolioObservations({ observations }: PortfolioObservationsPro
           );
         })}
       </ul>
-      <p className="mt-3 text-[10px] text-[var(--color-text-tertiary)]">
+      <p className="mt-auto pt-4 text-xs text-[var(--color-text-tertiary)]">
         Bu gözlemler deterministik portföy kurallarına dayanır, yatırım tavsiyesi değildir.
       </p>
     </Card>

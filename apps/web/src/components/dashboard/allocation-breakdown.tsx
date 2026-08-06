@@ -88,6 +88,26 @@ export function AllocationBreakdown({ items, masked = false }: AllocationBreakdo
               colorVar={seg.colorVar}
             />
           ))}
+          <text
+            x="80"
+            y="74"
+            textAnchor="middle"
+            className="text-[22px]"
+            fontWeight="650"
+            fill="var(--color-text-primary)"
+          >
+            {items.length}
+          </text>
+          <text
+            x="80"
+            y="94"
+            textAnchor="middle"
+            className="text-[11px]"
+            fontWeight="500"
+            fill="var(--color-text-tertiary)"
+          >
+            kategori
+          </text>
         </svg>
       </div>
 

@@ -11,7 +11,7 @@ interface TopBarProps {
 
 export function TopBar({ sidebarToggle, children }: TopBarProps) {
   return (
-    <div className="flex h-[72px] shrink-0 items-center justify-between border-b border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] px-4 md:px-6">
+    <div className="flex h-[72px] shrink-0 items-center justify-between border-b border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] px-4 md:hidden">
       <div className="flex items-center gap-3">
         {sidebarToggle && (
           <IconButton

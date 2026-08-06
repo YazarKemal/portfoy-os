@@ -37,7 +37,7 @@ export function HoldingsTable({ holdings, masked = false }: HoldingsTableProps) 
             <th scope="col" className="pb-3 pr-4 font-medium text-right">Günlük Değişim</th>
             <th scope="col" className="pb-3 pr-4 font-medium text-right">Toplam K/Z</th>
             <th scope="col" className="pb-3 pr-4 font-medium text-right">Veri</th>
-            <th scope="col" className="pb-3 font-medium"><span className="sr-only">Detay</span></th>
+            <th scope="col" className="pb-3 font-medium text-right">Detay</th>
           </tr>
         </thead>
         <tbody>

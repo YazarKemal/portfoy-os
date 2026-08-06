@@ -45,7 +45,7 @@ export function RecentTransactions({ transactions, masked = false }: RecentTrans
   }
 
   return (
-    <Card>
+    <Card className="h-full">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-[16px] leading-[24px] font-semibold text-[var(--color-text-primary)]">
           Son İşlemler

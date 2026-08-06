@@ -36,6 +36,15 @@ const QUANTITY_FORMATTER = new Intl.NumberFormat("tr-TR", {
   maximumFractionDigits: 10,
 });
 
+const COMPACT_MONEY_FORMATTER = new Intl.NumberFormat("tr-TR", {
+  style: "currency",
+  currency: "TRY",
+  notation: "compact",
+  compactDisplay: "short",
+  minimumFractionDigits: 0,
+  maximumFractionDigits: 1,
+});
+
 export function formatMoney(
   value: number,
   currency?: string,
@@ -48,6 +57,10 @@ export function formatMoney(
 
 export function formatMoneyMasked(): string {
   return "₺••••••••";
+}
+
+export function formatCompactMoney(value: number): string {
+  return COMPACT_MONEY_FORMATTER.format(value);
 }
 
 export function formatPercent(value: number, compact?: boolean): string {

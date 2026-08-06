@@ -2,26 +2,25 @@
 
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
-import { formatMoney, formatNumber } from "@/lib/formatters";
+import { formatMoney, formatCompactMoney } from "@/lib/formatters";
 import type { PerformancePoint, PeriodKey, PrivacyMode } from "@/types/dashboard";
 
 interface PerformanceChartProps {
   data: PerformancePoint[];
   period: PeriodKey;
-  onPeriodChange: (p: PeriodKey) => void;
   privacy: PrivacyMode;
 }
 
-const PERIODS: { key: PeriodKey; label: string }[] = [
-  { key: "1A", label: "1A" },
-  { key: "3A", label: "3A" },
-  { key: "6A", label: "6A" },
-  { key: "YBB", label: "YBB" },
-  { key: "1Y", label: "1Y" },
-  { key: "ALL", label: "Tümü" },
-];
+const PERIOD_LABELS: Record<PeriodKey, string> = {
+  "1A": "1A",
+  "3A": "3A",
+  "6A": "6A",
+  YBB: "YBB",
+  "1Y": "1Y",
+  ALL: "Tümü",
+};
 
-export function PerformanceChart({ data, period, onPeriodChange, privacy }: PerformanceChartProps) {
+export function PerformanceChart({ data, period, privacy }: PerformanceChartProps) {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const masked = privacy === "masked";
 
@@ -40,12 +39,13 @@ export function PerformanceChart({ data, period, onPeriodChange, privacy }: Perf
   const max = Math.max(...values);
   const range = max - min || 1;
   const padding = 24;
-  const width = 600;
+  const rightGutter = 56;
+  const width = 600 + rightGutter;
   const height = 220;
   const chartH = height - padding * 2;
 
   const toX = (i: number) =>
-    padding + (i / (data.length - 1)) * (width - padding * 2);
+    padding + (i / (data.length - 1)) * (width - padding * 2 - rightGutter);
   const toY = (v: number) =>
     height - padding - ((v - min) / range) * chartH;
 
@@ -70,22 +70,9 @@ export function PerformanceChart({ data, period, onPeriodChange, privacy }: Perf
         <h3 className="text-[16px] leading-[24px] font-semibold text-[var(--color-text-primary)]">
           Performans
         </h3>
-        <div className="flex items-center gap-1">
-          {PERIODS.map((p) => (
-            <button
-              key={p.key}
-              type="button"
-              onClick={() => onPeriodChange(p.key)}
-              className={`rounded-[var(--radius-sm)] px-2.5 py-1 text-xs font-semibold transition-colors ${
-                period === p.key
-                  ? "bg-[var(--color-brand-primary)] text-[var(--color-text-inverse)]"
-                  : "text-[var(--color-text-tertiary)] hover:bg-[var(--color-bg-subtle)]"
-              }`}
-            >
-              {p.label}
-            </button>
-          ))}
-        </div>
+        <span className="rounded-[var(--radius-sm)] bg-[var(--color-bg-subtle)] px-2.5 py-1 text-xs font-medium text-[var(--color-text-tertiary)]">
+          Seçili dönem: {PERIOD_LABELS[period]}
+        </span>
       </div>
 
       <div className="relative" role="img" aria-label={masked ? "Gizlilik modu açık. Grafik değerleri maskelenmiştir." : "Portföy değeri performans grafiği. Portföy değeri zaman içinde artış göstermiştir."}>
@@ -109,20 +96,20 @@ export function PerformanceChart({ data, period, onPeriodChange, privacy }: Perf
               <line
                 x1={padding}
                 y1={toY(v)}
-                x2={width - padding}
+                x2={width - padding - rightGutter}
                 y2={toY(v)}
                 stroke="var(--color-border-subtle)"
                 strokeWidth={0.5}
                 strokeDasharray="4 4"
               />
               <text
-                x={width - padding + 4}
+                x={width - padding - rightGutter + 8}
                 y={toY(v) + 3}
                 className="text-[10px]"
                 fill="var(--color-text-tertiary)"
                 textAnchor="start"
               >
-                {masked ? "••••" : formatNumber(v).replace(",", ".").slice(0, 8)}
+                {masked ? "••••" : formatCompactMoney(v)}
               </text>
             </g>
           ))}
