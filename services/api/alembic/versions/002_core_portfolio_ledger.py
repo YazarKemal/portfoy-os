@@ -166,6 +166,20 @@ def downgrade() -> None:
         "'BUY', 'SELL', 'DEPOSIT', 'WITHDRAWAL', 'DIVIDEND', "
         "'INTEREST', 'FEE', 'TAX', 'TRANSFER_IN', 'TRANSFER_OUT')"
     )
+    cash_flow_type_enum = postgresql.ENUM(
+        "BUY",
+        "SELL",
+        "DEPOSIT",
+        "WITHDRAWAL",
+        "DIVIDEND",
+        "INTEREST",
+        "FEE",
+        "TAX",
+        "TRANSFER_IN",
+        "TRANSFER_OUT",
+        name="cash_flow_type",
+        create_type=False,
+    )
     op.create_table(
         "cash_flows",
         sa.Column("id", postgresql.UUID(as_uuid=True), nullable=False),
@@ -174,19 +188,7 @@ def downgrade() -> None:
         ),
         sa.Column(
             "cash_flow_type",
-            sa.Enum(
-                "BUY",
-                "SELL",
-                "DEPOSIT",
-                "WITHDRAWAL",
-                "DIVIDEND",
-                "INTEREST",
-                "FEE",
-                "TAX",
-                "TRANSFER_IN",
-                "TRANSFER_OUT",
-                name="cash_flow_type",
-            ),
+            cash_flow_type_enum,
             nullable=False,
         ),
         sa.Column("amount", sa.Numeric(20, 4), nullable=False),
